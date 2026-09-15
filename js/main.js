@@ -319,4 +319,39 @@
                 "perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)";
         });
     });
+
+    // ===== REEL LIGHTBOX =====
+    var reelModal = document.getElementById("reelModal");
+    var reelModalFrame = document.getElementById("reelModalFrame");
+
+    function openReel(src) {
+        reelModalFrame.src = src;
+        reelModal.classList.add("open");
+        document.body.classList.add("modal-open");
+    }
+
+    function closeReel() {
+        reelModal.classList.remove("open");
+        reelModalFrame.src = "about:blank";
+        document.body.classList.remove("modal-open");
+    }
+
+    document.querySelectorAll(".reel-card").forEach(function (card) {
+        card.addEventListener("click", function () {
+            var src = card.getAttribute("data-reel");
+            if (src) openReel(src);
+        });
+    });
+
+    document
+        .querySelectorAll("[data-reel-close]")
+        .forEach(function (el) {
+            el.addEventListener("click", closeReel);
+        });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && reelModal.classList.contains("open")) {
+            closeReel();
+        }
+    });
 })();
