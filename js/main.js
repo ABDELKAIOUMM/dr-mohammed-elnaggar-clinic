@@ -41,6 +41,27 @@
         link.addEventListener("click", closeMenu);
     });
 
+    // ===== SCROLL PERFORMANCE (throttled with requestAnimationFrame) =====
+    var isTouchDevice =
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.matchMedia("(pointer: coarse)").matches;
+
+    var scrolling = false;
+
+    function onScroll() {
+        if (scrolling) return;
+        scrolling = true;
+        requestAnimationFrame(function () {
+            handleNavbarScroll();
+            updateActiveNav();
+            if (!isTouchDevice) {
+                handleParallax();
+            }
+            scrolling = false;
+        });
+    }
+
     // ===== NAVBAR SCROLL EFFECT =====
     function handleNavbarScroll() {
         if (window.scrollY > 50) {
@@ -50,7 +71,7 @@
         }
     }
 
-    window.addEventListener("scroll", handleNavbarScroll);
+    window.addEventListener("scroll", onScroll);
 
     // ===== ACTIVE NAV LINK =====
     function updateActiveNav() {
@@ -70,8 +91,6 @@
             }
         });
     }
-
-    window.addEventListener("scroll", updateActiveNav);
 
     // ===== SCROLL ANIMATIONS =====
     var animationObserver = new IntersectionObserver(
@@ -141,7 +160,7 @@
         counterObserver.observe(el);
     });
 
-    // ===== PARALLAX SCROLLING =====
+    // ===== PARALLAX SCROLLING (desktop only) =====
     function handleParallax() {
         var scrolled = window.scrollY;
         var parallaxElements = document.querySelectorAll(".parallax-bg");
@@ -152,8 +171,6 @@
             el.style.transform = "translateY(" + yPos + "px)";
         });
     }
-
-    window.addEventListener("scroll", handleParallax);
 
     // ===== HERO TEXT ROTATION =====
     function initTextRotation() {
@@ -224,14 +241,20 @@
         btn.setAttribute("aria-label", "العودة للأعلى");
         document.body.appendChild(btn);
 
+        var topScrolling = false;
         window.addEventListener("scroll", function () {
-            if (window.scrollY > 500) {
-                btn.style.opacity = "1";
-                btn.style.visibility = "visible";
-            } else {
-                btn.style.opacity = "0";
-                btn.style.visibility = "hidden";
-            }
+            if (topScrolling) return;
+            topScrolling = true;
+            requestAnimationFrame(function () {
+                if (window.scrollY > 500) {
+                    btn.style.opacity = "1";
+                    btn.style.visibility = "visible";
+                } else {
+                    btn.style.opacity = "0";
+                    btn.style.visibility = "hidden";
+                }
+                topScrolling = false;
+            });
         });
 
         btn.addEventListener("click", function () {
