@@ -1,6 +1,11 @@
 import { Reveal } from "../hooks";
 import { useI18n } from "../i18n";
 import { IconCheck, IconSparkle } from "../components/Icons";
+// Imported (not referenced as "/images/...") so Vite bundles them: a raw
+// root-absolute URL works in dev — where the project root is served — but it
+// is never emitted to dist/ and ignores `base`, so it 404s on GitHub Pages.
+import clinicPhoto from "../../images/Clinic photos.jpeg";
+import clinicPhoto2 from "../../images/Clinic photos2.jpeg";
 
 export default function Benefits() {
   const { t } = useI18n();
@@ -28,7 +33,7 @@ export default function Benefits() {
               <div className="overflow-hidden rounded-[1.8rem] shadow-lift">
                 <div className="aspect-[16/10] overflow-hidden">
                   <img
-                    src="/images/Clinic%20photos.jpeg"
+                    src={clinicPhoto}
                     alt={t.visitImgAlt}
                     className="h-full w-full object-cover animate-kenburns"
                     loading="lazy"
@@ -38,7 +43,7 @@ export default function Benefits() {
               <div className="mt-4 overflow-hidden rounded-[1.8rem] shadow-soft">
                 <div className="aspect-[16/10] overflow-hidden">
                   <img
-                    src="/images/Clinic%20photos2.jpeg"
+                    src={clinicPhoto2}
                     alt={t.visitImgAlt}
                     className="h-full w-full object-cover"
                     loading="lazy"
