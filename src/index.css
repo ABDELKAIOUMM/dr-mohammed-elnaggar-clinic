@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+@theme {
+  /* Latin: Fraunces / Manrope — Arabic falls back to Alexandria / Tajawal */
+  --font-display: "Fraunces", "Alexandria", "Georgia", serif;
+  --font-sans: "Manrope", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0b2725;
+  --color-pine: #0f4b44;
+  --color-teal: #14756a;
+  --color-aqua: #3ec6ae;
+  --color-mint: #cdeee3;
+  --color-fog: #e9f3ee;
+  --color-ivory: #f7f3eb;
+  --color-cream: #fcfaf4;
+  --color-amber: #e0a84e;
+  --color-sand: #d9cdb8;
+
+  --shadow-soft: 0 12px 32px -14px rgb(11 39 37 / 0.22);
+  --shadow-lift: 0 28px 56px -22px rgb(11 39 37 / 0.32);
+
+  --animate-spin-slow: spin-slow 18s linear infinite;
+  --animate-floaty: floaty 7s ease-in-out infinite;
+  --animate-floaty-late: floaty 8.5s ease-in-out -3.5s infinite;
+  --animate-kenburns: kenburns 24s ease-in-out infinite alternate;
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-pulse-dot: pulse-dot 2.4s ease-in-out infinite;
+  --animate-drift: drift 16s ease-in-out infinite alternate;
+  --animate-drift-late: drift 21s ease-in-out -9s infinite alternate;
+  --animate-card-in: fade-in-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1.03) translate(0, 0);
+  }
+  to {
+    transform: scale(1.14) translate(-1.6%, -2.2%);
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(62 198 174 / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgb(62 198 174 / 0);
+  }
+}
+@keyframes drift {
+  from {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(5%, 4%, 0) scale(1.18);
+  }
+}
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes line-rise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 92px;
+}
+
+body {
+  @apply bg-ivory text-ink font-sans antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-aqua);
+  color: var(--color-ink);
+}
+
+/* ---------- signature: scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rd, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- signature: line-mask headline reveal ---------- */
+.mask-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.mask-line > span {
+  display: block;
+  transform: translateY(118%);
+  animation: line-rise 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+
+/* ---------- ambient texture ---------- */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+.dot-grid {
+  background-image: radial-gradient(rgb(15 75 68 / 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.dot-grid-light {
+  background-image: radial-gradient(rgb(252 250 244 / 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.glass {
+  background: rgb(252 250 244 / 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.65);
+}
+.glass-dark {
+  background: rgb(11 39 37 / 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(252 250 244 / 0.16);
+}
+
+/* ---------- micro-interactions ---------- */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-130%) skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.25), transparent);
+  transition: transform 0.75s ease;
+}
+.btn-sheen:hover::after,
+.btn-sheen:focus-visible::after {
+  transform: translateX(130%) skewX(-18deg);
+}
+
+.underline-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.underline-draw:hover,
+.underline-draw:focus-visible {
+  background-size: 100% 1.5px;
+}
+
+/* ---------- marquee ---------- */
+.marquee {
+  mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ---------- form fields (dark) ---------- */
+.field {
+  @apply w-full rounded-xl border border-cream/20 bg-cream/10 px-4 py-3 text-sm font-medium text-cream placeholder:text-cream/45 outline-none transition;
+}
+.field:focus {
+  @apply border-aqua/70 bg-cream/15 ring-2 ring-aqua/30;
+}
+.field option {
+  color: #0b2725;
+}
+.field-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fcfaf4' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 2.25rem;
+}
+
+/* ---------- ghost outline word ---------- */
+.ghost-word {
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(252 250 244 / 0.14);
+  user-select: none;
+}
+
+/* ---------- RTL (Arabic) adjustments ---------- */
+[dir="rtl"] * {
+  letter-spacing: 0 !important;
+}
+[dir="rtl"] em {
+  font-style: normal;
+}
+[dir="rtl"] .underline-draw {
+  background-position: 100% 100%;
+}
+[dir="rtl"] .field-select {
+  background-position: left 14px center;
+  padding-right: 1rem;
+  padding-left: 2.25rem;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .mask-line > span {
+    transform: none !important;
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

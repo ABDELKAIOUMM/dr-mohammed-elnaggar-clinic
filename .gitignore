@@ -1,3 +1,7 @@
-assets/reels/reel1.svg
-assets/reels/reel2.svg
-assets/reels/reel3.svg
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
