@@ -87,11 +87,6 @@
     transform: none;
   }
 }
-@keyframes line-rise {
-  to {
-    transform: translateY(0);
-  }
-}
 
 html {
   scroll-behavior: smooth;
@@ -109,6 +104,10 @@ body {
 }
 
 /* ---------- signature: scroll reveal ---------- */
+/* Never apply this to above-the-fold content: `opacity: 0` locks the element
+   out of the first paint, and the transition delay is added straight onto the
+   LCP timestamp. The hero headline and paragraph render plain for that reason —
+   see the comment in `sections/Hero.tsx`. */
 .reveal {
   opacity: 0;
   transform: translateY(26px);
@@ -128,18 +127,12 @@ body {
 }
 
 /* ---------- signature: line-mask headline reveal ---------- */
-.mask-line {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.1em;
-  margin-bottom: -0.1em;
-}
-.mask-line > span {
-  display: block;
-  transform: translateY(118%);
-  animation: line-rise 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: var(--d, 0s);
-}
+/* Removed. The rule below used to hold each headline line at
+   `translateY(118%)` inside an `overflow: hidden` wrapper until a staggered
+   1 s `line-rise` animation ran. On the hero that made the largest text on the
+   page unpaintable for up to 1.24 s, so the LCP element was not the text the
+   user was reading but whatever painted last. The hero headline is now static;
+   the motion language survives below the fold via `.reveal`. */
 
 /* ---------- ambient texture ---------- */
 .noise-overlay {
@@ -261,10 +254,6 @@ body {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
-  }
-  .mask-line > span {
-    transform: none !important;
-    animation: none !important;
   }
   *,
   *::before,

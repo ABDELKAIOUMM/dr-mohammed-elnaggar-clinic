@@ -44,6 +44,17 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230f4b44'/%3E%3Cpath d='M8 5.5C5.9 5.5 4.4 7.3 4.4 9.5c0 3.3 1.5 4.5 1.9 7.4.2 1.7.6 2.6 1.6 2.6 1.3 0 1-2.4 1.7-4.2.4-1.1.9-1.6 2.4-1.6s2 .5 2.4 1.6c.7 1.8.4 4.2 1.7 4.2 1 0 1.4-.9 1.6-2.6.4-2.9 1.9-4.1 1.9-7.4 0-2.2-1.5-4-3.6-4-1.4 0-2.1.8-3.6.8s-2.2-.8-3.4-.8Z' fill='%23f7f3eb'/%3E%3C/svg%3E"
     />
+
+    <!--
+      Two tags are injected here at build time by the `clinic:critical-assets`
+      plugin in vite.config.ts. Neither can be written by hand, because both need
+      the content-hashed asset filenames that Vite only invents while emitting:
+
+        * the compiled stylesheet, inlined into the document so it cannot delay
+          the first paint with a network round trip;
+        * a preload for the hero portrait, the LCP candidate, whose URL otherwise
+          exists only inside the JS bundle.
+    -->
   </head>
   <body>
     <div id="root"></div>

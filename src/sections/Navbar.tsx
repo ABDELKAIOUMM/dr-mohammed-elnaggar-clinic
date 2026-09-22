@@ -2,17 +2,30 @@ import { useEffect, useState } from "react";
 import { useScrolled } from "../hooks";
 import { PHONE, PHONE_HREF, useI18n } from "../i18n";
 import { IconClose, IconGlobe, IconMenu, IconPhone } from "../components/Icons";
-import logo from "../../images/optimized/logo.webp";
+import { logoIntrinsic, logoSizes, logoSrc, logoSrcSet } from "../images";
 
-export function Logo({ light = false }: { light?: boolean }) {
+/**
+ * Brand mark. The navbar instance is part of the first paint (`priority`), so it
+ * loads eagerly; the footer copy sits ~10 screens down and stays lazy so it never
+ * competes for bandwidth with the hero.
+ *
+ * `srcSet`/`sizes` matter more here than the raw pixel count suggests: the source
+ * is a flat-colour, lossless WebP, so every unused pixel is paid for at a much
+ * higher price per pixel than a photograph. `sizes` mirrors the rendered width of
+ * `h-16 w-36` / `sm:h-18 sm:w-40`.
+ */
+export function Logo({ light = false, priority = false }: { light?: boolean; priority?: boolean }) {
   const { t } = useI18n();
   return (
     <a href="#top" className="group flex items-center" aria-label={t.brandA + " " + t.brandB}>
       <img
-        src={logo}
+        src={logoSrc}
+        srcSet={logoSrcSet}
+        sizes={logoSizes}
         alt="Dr. Mohamed El-Naggar"
-        width={384}
-        height={267}
+        width={logoIntrinsic.width}
+        height={logoIntrinsic.height}
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
         className={`h-16 w-36 object-contain transition-transform duration-500 group-hover:scale-[1.03] sm:h-18 sm:w-40 ${
           light ? "brightness-110" : ""
@@ -84,7 +97,7 @@ export default function Navbar() {
       >
         <div className="relative mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Logo />
+            <Logo priority />
           </div>
 
           <ul className="hidden items-center gap-6 xl:gap-7 lg:flex">

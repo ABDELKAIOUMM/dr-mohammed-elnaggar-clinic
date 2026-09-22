@@ -1,20 +1,17 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Reveal } from "../hooks";
 import { PHONE, PHONE_HREF, useI18n } from "../i18n";
-import doctorPhoto from "../../images/optimized/doctor.webp";
+import {
+  doctorIntrinsic,
+  doctorSizes,
+  doctorSrc,
+  doctorSrcSet,
+} from "../images";
 import {
   IconArrowRight,
   IconCheck,
   IconPhone,
 } from "../components/Icons";
-
-function MaskLine({ children, delay }: { children: ReactNode; delay: number }) {
-  return (
-    <span className="mask-line">
-      <span style={{ ["--d" as string]: `${delay}s` }}>{children}</span>
-    </span>
-  );
-}
 
 export function BookingForm({ requested }: { requested: string }) {
   const { t } = useI18n();
@@ -177,10 +174,11 @@ export default function Hero({ requested }: { requested: string }) {
   const { t } = useI18n();
   return (
     <section id="top" className="relative overflow-hidden pt-36 lg:pt-44">
-      {/* React 19 hoists this into <head>. The portrait is the LCP element and
-          is only referenced from JS, so without an explicit preload the browser
-          cannot discover — let alone start fetching — it until React has run. */}
-      <link rel="preload" as="image" href={doctorPhoto} fetchPriority="high" />
+      {/* The portrait's `<link rel="preload" as="image">` is injected into the
+          built HTML by the `clinic:critical-assets` plugin in vite.config.ts.
+          It cannot live here: React 19 would hoist it into <head>, but only once
+          this component renders — by which point the module it exists to
+          accelerate has already finished loading. */}
       {/* ambient background */}
       <div
         className="dot-grid absolute inset-0 [mask-image:radial-gradient(ellipse_75%_60%_at_50%_0%,black,transparent)]"
@@ -199,18 +197,29 @@ export default function Hero({ requested }: { requested: string }) {
         <div className="grid items-center gap-14 lg:grid-cols-[1.04fr_0.96fr] lg:gap-10">
           {/* copy */}
           <div>
+            {/* Headline and paragraph render with no entrance animation at all.
+                They are the largest content above the fold, so any `opacity: 0`
+                lock or transform offset is added straight onto the LCP
+                timestamp. The previous markup hid the paragraph behind a 420 ms
+                delay plus an 0.8 s fade, and held the headline lines outside an
+                `overflow: hidden` mask for up to 1.24 s — which is why the audit
+                reported the paragraph painting at 3.59 s.
+
+                The reveal language still runs on the buttons and the check-list
+                below: both are strictly smaller than the headline, so they cannot
+                become the LCP candidate. */}
             <h1 className="mt-7 font-display text-[2.7rem] font-medium leading-[1.06] tracking-tight text-ink sm:text-6xl lg:text-[4.2rem]">
-              <MaskLine delay={0.1}>{t.hero.line1}</MaskLine>
-              <MaskLine delay={0.24}>
+              <span className="block">{t.hero.line1}</span>
+              <span className="block">
                 {t.hero.line2a}
                 <em className="font-light italic text-teal">{t.hero.line2b}</em>
                 <span className="text-amber">.</span>
-              </MaskLine>
+              </span>
             </h1>
 
-            <Reveal delay={420} as="p" className="mt-6 max-w-lg text-base leading-relaxed text-ink/70 sm:text-lg">
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/70 sm:text-lg">
               {t.hero.sub}
-            </Reveal>
+            </p>
 
             <Reveal delay={540} className="mt-8 flex flex-wrap items-center gap-4">
               <a
@@ -234,16 +243,23 @@ export default function Hero({ requested }: { requested: string }) {
             </Reveal>
           </div>
 
-          {/* visual */}
-          <Reveal delay={250} className="relative mx-auto w-full max-w-md lg:max-w-none">
+          {/* visual — deliberately not wrapped in `Reveal`: the portrait is a
+              large LCP candidate, so fading it in would trade an invisible LCP
+              element for a delayed one. `sizes` mirrors the column widths
+              declared in src/image-sizes.ts, which is the same string the
+              injected preload uses, so the preloaded candidate and the one the
+              <img> settles on are guaranteed to be the same file. */}
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
             <div className="relative overflow-hidden rounded-[2.2rem] shadow-lift">
               <div className="aspect-[4/4.7] overflow-hidden">
                 <img
-                  src={doctorPhoto}
+                  src={doctorSrc}
+                  srcSet={doctorSrcSet}
+                  sizes={doctorSizes}
                   alt={t.hero.imgAlt}
                   className="h-full w-full bg-ink object-contain animate-kenburns"
-                  width={900}
-                  height={898}
+                  width={doctorIntrinsic.width}
+                  height={doctorIntrinsic.height}
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
@@ -283,7 +299,7 @@ export default function Hero({ requested }: { requested: string }) {
                 <IconArrowRight className="h-5 w-5 rtl:-scale-x-100" />
               </span>
             </a>
-          </Reveal>
+          </div>
         </div>
 
         <BookingForm requested={requested} />
