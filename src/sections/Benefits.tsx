@@ -4,8 +4,8 @@ import { IconCheck, IconSparkle } from "../components/Icons";
 // Imported (not referenced as "/images/...") so Vite bundles them: a raw
 // root-absolute URL works in dev — where the project root is served — but it
 // is never emitted to dist/ and ignores `base`, so it 404s on GitHub Pages.
-import clinicPhoto from "../../images/Clinic photos.jpeg";
-import clinicPhoto2 from "../../images/Clinic photos2.jpeg";
+import clinicPhoto from "../../images/optimized/clinic-1.webp";
+import clinicPhoto2 from "../../images/optimized/clinic-2.webp";
 
 export default function Benefits() {
   const { t } = useI18n();
@@ -36,7 +36,10 @@ export default function Benefits() {
                     src={clinicPhoto}
                     alt={t.visitImgAlt}
                     className="h-full w-full object-cover animate-kenburns"
+                    width={1078}
+                    height={796}
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>
@@ -46,7 +49,10 @@ export default function Benefits() {
                     src={clinicPhoto2}
                     alt={t.visitImgAlt}
                     className="h-full w-full object-cover"
+                    width={1079}
+                    height={1439}
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>

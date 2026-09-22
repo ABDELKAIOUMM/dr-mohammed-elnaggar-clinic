@@ -81,7 +81,10 @@ export default function Treatments({ onBook }: { onBook: (name: string) => void 
                   src={tr.image}
                   alt={tr.alt}
                   className="h-full w-full object-cover animate-kenburns"
+                  width={1200}
+                  height={627}
                   loading="lazy"
+                  decoding="async"
                 />
                 <div
                   className="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent"

@@ -116,7 +116,11 @@ body {
     opacity 0.8s ease,
     transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--rd, 0ms);
-  will-change: opacity, transform;
+  /* No `will-change` here on purpose: it was applied to every `.reveal`
+     wrapper on the page (~100 of them), which permanently promoted each one to
+     its own compositor layer, burning GPU memory and forcing style/layer
+     recalculation on a mid-range phone. Browsers promote an element on their
+     own once its transition actually starts, so the hint only cost memory. */
 }
 .reveal.is-visible {
   opacity: 1;

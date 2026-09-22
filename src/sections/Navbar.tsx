@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useScrolled } from "../hooks";
 import { PHONE, PHONE_HREF, useI18n } from "../i18n";
 import { IconClose, IconGlobe, IconMenu, IconPhone } from "../components/Icons";
-import logo from "../../images/logo.png";
+import logo from "../../images/optimized/logo.webp";
 
 export function Logo({ light = false }: { light?: boolean }) {
   const { t } = useI18n();
@@ -11,6 +11,9 @@ export function Logo({ light = false }: { light?: boolean }) {
       <img
         src={logo}
         alt="Dr. Mohamed El-Naggar"
+        width={384}
+        height={267}
+        decoding="async"
         className={`h-16 w-36 object-contain transition-transform duration-500 group-hover:scale-[1.03] sm:h-18 sm:w-40 ${
           light ? "brightness-110" : ""
         }`}

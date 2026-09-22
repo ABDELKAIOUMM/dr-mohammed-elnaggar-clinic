@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Reveal } from "../hooks";
 import { PHONE, PHONE_HREF, useI18n } from "../i18n";
-import doctorPhoto from "../../images/doctor.jpg";
+import doctorPhoto from "../../images/optimized/doctor.webp";
 import {
   IconArrowRight,
   IconCheck,
@@ -177,6 +177,10 @@ export default function Hero({ requested }: { requested: string }) {
   const { t } = useI18n();
   return (
     <section id="top" className="relative overflow-hidden pt-36 lg:pt-44">
+      {/* React 19 hoists this into <head>. The portrait is the LCP element and
+          is only referenced from JS, so without an explicit preload the browser
+          cannot discover — let alone start fetching — it until React has run. */}
+      <link rel="preload" as="image" href={doctorPhoto} fetchPriority="high" />
       {/* ambient background */}
       <div
         className="dot-grid absolute inset-0 [mask-image:radial-gradient(ellipse_75%_60%_at_50%_0%,black,transparent)]"
@@ -238,7 +242,11 @@ export default function Hero({ requested }: { requested: string }) {
                   src={doctorPhoto}
                   alt={t.hero.imgAlt}
                   className="h-full w-full bg-ink object-contain animate-kenburns"
+                  width={900}
+                  height={898}
                   loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent" aria-hidden="true" />

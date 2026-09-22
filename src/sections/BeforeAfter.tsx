@@ -22,7 +22,10 @@ function CaseCard({
         <img
           src={image}
           alt={`${title} — ${subtitle}`}
+          width={1000}
+          height={750}
           loading="lazy"
+          decoding="async"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <span className="absolute start-3 top-3 z-10 rounded-md bg-ink/75 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cream backdrop-blur-sm">

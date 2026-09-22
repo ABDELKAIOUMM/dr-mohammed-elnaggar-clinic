@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Reveal } from "../hooks";
 import { useI18n } from "../i18n";
 import { IconClose, IconFacebook, IconPlay } from "../components/Icons";
@@ -41,6 +41,75 @@ const MODAL_WIDTH = `min(92vw, calc((${MODAL_VIEWPORT_FILL}vh - ${POST_CHROME}px
 
 const embedUrl = (url: string, width = POST_WIDTH) =>
   `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&width=${width}&show_text=${SHOW_TEXT}&adapt_container_width=true`;
+
+/** How far ahead of the viewport a card mounts its iframe. */
+const EMBED_ROOT_MARGIN = "400px 0px";
+
+/**
+ * Defers the embedded post until its card is close to the viewport.
+ *
+ * Every Facebook embed boots its own third-party document — hundreds of KB of
+ * scripts, thumbnails and XHRs — and this section sits well below the fold.
+ * Mounting all four iframes during page load made them race the hero image and
+ * the fonts for bandwidth and main-thread time, which is exactly the kind of
+ * work that pushes LCP and Total Blocking Time up on a phone.
+ *
+ * The iframe is therefore created only once its card comes within
+ * `EMBED_ROOT_MARGIN`. The reserved box below has the same height in both
+ * states, so nothing shifts when the swap happens, and the overlay button still
+ * opens the full lightbox straight away.
+ */
+function DeferredEmbed({ url, title, children }: { url: string; title: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || mounted) return;
+
+    // Old browsers without IntersectionObserver: fall back to loading eagerly.
+    if (typeof IntersectionObserver === "undefined") {
+      setMounted(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setMounted(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: EMBED_ROOT_MARGIN },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [mounted]);
+
+  return (
+    <>
+      {/* The embedded post keeps the reel at its native 9:16 size, so the box
+          reserves `video + chrome` and the iframe simply fills it. */}
+      <div className="relative w-full" style={{ paddingBottom: `calc(125% + 80px)` }}>
+        {mounted ? (
+          <iframe
+            src={embedUrl(url)}
+            title={title}
+            scrolling="no"
+            className="absolute inset-0 h-full w-full border-0"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-fog" aria-hidden="true">
+            <IconFacebook className="h-9 w-9 text-[#1877F2] opacity-40" />
+          </div>
+        )}
+        {children}
+      </div>
+    </>
+  );
+}
 
 export default function FacebookVideos() {
   const { t } = useI18n();
@@ -99,19 +168,7 @@ export default function FacebookVideos() {
           {t.videos.items.map((v, i) => (
             <Reveal key={v.id} delay={i * 120}>
               <div className="group relative h-full overflow-hidden rounded-[1.6rem] bg-white shadow-soft ring-1 ring-ink/5 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-lift">
-                {/* The embedded post keeps the reel at its native 9:16 size, so the
-                    box reserves `video + chrome` and the iframe simply fills it. */}
-                <div className="relative w-full" style={{ paddingBottom: `calc(125% + 80px)` }}>
-                  <iframe
-                    src={embedUrl(v.url)}
-                    title={v.title}
-                    loading="lazy"
-                    scrolling="no"
-                    className="absolute inset-0 h-full w-full border-0"
-                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-
+                <DeferredEmbed url={v.url} title={v.title}>
                   {/* Facebook's iframe swallows every click, so a transparent layer sits
                       on top of it: tapping the reel itself opens the lightbox instead of
                       Facebook's own inline player. The veil and the play badge are only
@@ -128,7 +185,7 @@ export default function FacebookVideos() {
                       <IconPlay className="h-7 w-7 translate-x-[1px]" />
                     </span>
                   </button>
-                </div>
+                </DeferredEmbed>
               </div>
             </Reveal>
           ))}

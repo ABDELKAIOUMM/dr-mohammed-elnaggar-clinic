@@ -5,12 +5,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import implant1 from "../images/implant1.webp";
-import implant2 from "../images/implant2.webp";
-import implant3 from "../images/implant3.jpg";
-import ortho1 from "../images/ortho1.jpg";
-import ortho2 from "../images/ortho2.jpg";
-import ortho3 from "../images/ortho3.jpg";
+import implant1 from "../images/optimized/implant1.webp";
+import implant2 from "../images/optimized/implant2.webp";
+import implant3 from "../images/optimized/implant3.webp";
+import ortho1 from "../images/optimized/ortho1.webp";
+import ortho2 from "../images/optimized/ortho2.webp";
+import ortho3 from "../images/optimized/ortho3.webp";
 
 export type Lang = "ar" | "en";
 

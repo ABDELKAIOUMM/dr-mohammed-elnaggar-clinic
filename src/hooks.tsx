@@ -127,10 +127,28 @@ export function Counter({
 export function useScrolled(threshold = 24) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > threshold);
-    onScroll();
+    let frame = 0;
+
+    const read = () => {
+      frame = 0;
+      setScrolled(window.scrollY > threshold);
+    };
+
+    // Coalesce scroll events into at most one read + state update per animation
+    // frame. A raw `scroll` listener fires many times per frame on touch
+    // devices, and every call touched `window.scrollY` (a layout read) from
+    // inside a scroll handler — the classic way to drag a long page's INP down.
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(read);
+    };
+
+    read();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [threshold]);
   return scrolled;
 }
