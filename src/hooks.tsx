@@ -1,4 +1,5 @@
 import {
+  Suspense,
   useEffect,
   useRef,
   useState,
@@ -151,4 +152,85 @@ export function useScrolled(threshold = 24) {
     };
   }, [threshold]);
   return scrolled;
+}
+
+/**
+ * How far outside the viewport a deferred section starts loading. A full screen
+ * of lead time is deliberate: the chunk has to have landed before the section is
+ * painted, otherwise the section would appear under a scroll that is already
+ * past it — the same placeholder-then-content swap that shows up as CLS.
+ */
+export const LAZY_ROOT_MARGIN = "1000px 0px";
+
+/**
+ * True once the observed element comes within `rootMargin` of the viewport.
+ *
+ * `Reveal` waits until an element is *visible*; this fires while it is still off
+ * screen, because its job is to start work early rather than to hide it late.
+ */
+export function useNearViewport<T extends HTMLElement>(rootMargin: string = LAZY_ROOT_MARGIN) {
+  const ref = useRef<T | null>(null);
+  const [near, setNear] = useState(false);
+
+  useEffect(() => {
+    if (near) return;
+    const el = ref.current;
+    if (!el) return;
+
+    // No IntersectionObserver means no way to wait — mount rather than never.
+    if (typeof IntersectionObserver === "undefined") {
+      setNear(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setNear(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near, rootMargin]);
+
+  return { ref, near };
+}
+
+type LazySectionProps = {
+  children: ReactNode;
+  /** Skip the proximity gate and render now. */
+  eager?: boolean;
+  rootMargin?: string;
+  className?: string;
+};
+
+/**
+ * Renders `children` when they are worth having, and not before.
+ *
+ * `React.lazy` on its own only *splits* a bundle, it does not defer it: a
+ * dynamic import resolves on the component's first render, and every section is
+ * part of that first render, so all of the `import()` calls would fire on mount
+ * and race the entry bundle for bandwidth. The `near` flag below is the half that
+ * actually takes those bytes off the load-critical path.
+ *
+ * The wrapper `<div>` is always rendered, so the document's scroll height is
+ * stable and the layout that arrives with the chunk never lands under content
+ * the user can already see.
+ */
+export function LazySection({
+  children,
+  eager = false,
+  rootMargin = LAZY_ROOT_MARGIN,
+  className = "",
+}: LazySectionProps) {
+  const { ref, near } = useNearViewport<HTMLDivElement>(rootMargin);
+
+  return (
+    <div ref={ref} className={className}>
+      {eager || near ? <Suspense fallback={null}>{children}</Suspense> : null}
+    </div>
+  );
 }

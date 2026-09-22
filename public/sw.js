@@ -28,8 +28,9 @@ const CACHE = `clinic-static-${VERSION}`;
 const SHELL = "./";
 
 /**
- * Entries kept in the cache. Each deploy adds roughly a dozen hashed asset URLs,
- * so this covers a few releases without letting the cache grow without bound.
+ * Entries kept in the cache. Each deploy adds two dozen-odd hashed asset URLs —
+ * one bundle plus one chunk per section — so this covers a couple of releases
+ * without letting the cache grow without bound.
  * Ordering of `cache.keys()` is insertion order in practice, not by spec, which
  * is good enough for a size cap.
  */
