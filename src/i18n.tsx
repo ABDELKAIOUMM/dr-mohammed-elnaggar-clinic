@@ -38,6 +38,8 @@ const en = {
     line2b: "dental care",
     sub: "3D imaging, same-day crowns and a genuinely gentle touch — care that treats you like a person, not a chart number. No waitlists. No surprises. Just a higher standard.",
     ctaBook: "Book your visit",
+    ctaWhatsApp: "Chat on WhatsApp",
+    ctaCall: "Call now",
     ctaExplore: "Explore treatments",
     checks: ["Same-week new patients", "0% financing options", "Kids always welcome"],
     imgAlt: "Bright, modern treatment room at Dr. Mohamed El-Naggar's clinic with a premium dental chair",
@@ -507,6 +509,8 @@ const ar: Content = {
     line2b: "من عيادة أسنان موثوقة",
     sub: "في عيادة دكتور محمد النجار في منيا القمح بنقدملك كشف وعلاج أسنان باهتمام، من زراعة وتقويم وتجميل الأسنان لحد التبييض والعلاج العام.",
     ctaBook: "احجز زيارتك",
+    ctaWhatsApp: "احجز على واتساب",
+    ctaCall: "اتصل الآن",
     ctaExplore: "استكشف العلاجات",
     checks: ["مواعيد قريبة", "حجز سريع على واتساب", "رعاية مناسبة للكبار والأطفال"],
     imgAlt: "دكتور أسنان داخل عيادة دكتور محمد النجار في منيا القمح",
@@ -993,6 +997,7 @@ export const useI18n = () => useContext(Ctx);
 
 export const PHONE = "01129114212";
 export const PHONE_HREF = "tel:01129114212";
+export const WHATSAPP_HREF = "https://wa.me/201129114212";
 export const ADDRESS_EN = "Minya Al-Qamh, Sharqia, Egypt";
 export const ADDRESS_AR = "منيا القمح، الشرقية، مصر";
 export const EMAIL = "";

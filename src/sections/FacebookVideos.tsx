@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Reveal } from "../hooks";
 import { useI18n } from "../i18n";
 import { IconClose, IconFacebook, IconPlay } from "../components/Icons";
@@ -42,8 +42,18 @@ const MODAL_WIDTH = `min(92vw, calc((${MODAL_VIEWPORT_FILL}vh - ${POST_CHROME}px
 const embedUrl = (url: string, width = POST_WIDTH) =>
   `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&width=${width}&show_text=${SHOW_TEXT}&adapt_container_width=true`;
 
-/** How far ahead of the viewport a card mounts its iframe. */
-const EMBED_ROOT_MARGIN = "400px 0px";
+/**
+ * How far ahead of the viewport a card mounts its iframe.
+ *
+ * The top margin is deliberately much larger than the bottom one. A card that
+ * is still *below* the fold will be reached by a normal downward scroll, so a
+ * small lead is enough. A card that has already scrolled *above* the viewport
+ * only happens after a fast flick or a restored scroll position, and with a
+ * symmetric margin the observer would never match it again — the embed would
+ * stay a grey placeholder for the rest of the session. The generous top margin
+ * keeps those cards inside the observed band so they still mount.
+ */
+const EMBED_ROOT_MARGIN = "2000px 0px 400px 0px";
 
 /**
  * Defers the embedded post until its card is close to the viewport.
@@ -60,15 +70,45 @@ const EMBED_ROOT_MARGIN = "400px 0px";
  * opens the full lightbox straight away.
  */
 function DeferredEmbed({ url, title, children }: { url: string; title: string; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [el, setEl] = useState<HTMLDivElement | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  /*
+   * A callback ref, not `useRef` + `useEffect`.
+   *
+   * The section is mounted through `React.lazy` inside a `Suspense` boundary,
+   * and the effect below was observed running with `ref.current === null`: the
+   * ref had not been attached yet when the effect fired, so the observer was
+   * never created and the card stayed a grey placeholder forever. A callback
+   * ref cannot miss: React calls it with the node the moment it is attached,
+   * and with `null` when it detaches, which is exactly the signal needed to
+   * start observing.
+   */
   useEffect(() => {
-    const el = ref.current;
     if (!el || mounted) return;
 
     // Old browsers without IntersectionObserver: fall back to loading eagerly.
     if (typeof IntersectionObserver === "undefined") {
+      setMounted(true);
+      return;
+    }
+
+    /*
+     * The card can already be inside the viewport by the time this effect runs:
+     * `LazySection` mounts the whole section only once it is within 1000px, and
+     * a fast scroll (or a restored scroll position) can land the card on screen
+     * before the observer has had a chance to fire. IntersectionObserver does
+     * report that initial state on its first callback, but only after a frame —
+     * and if the element is *above* the viewport the margin never matches it
+     * again, so the embed would stay a grey placeholder forever.
+     *
+     * A synchronous bounding-box check closes that gap: if the card is already
+     * within the margin, mount immediately instead of waiting for a callback
+     * that may never come.
+     */
+    const rect = el.getBoundingClientRect();
+    const margin = 400;
+    if (rect.top < window.innerHeight + margin && rect.bottom > -margin) {
       setMounted(true);
       return;
     }
@@ -84,13 +124,13 @@ function DeferredEmbed({ url, title, children }: { url: string; title: string; c
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [mounted]);
+  }, [el, mounted]);
 
   return (
     <>
       {/* The embedded post keeps the reel at its native 9:16 size, so the box
           reserves `video + chrome` and the iframe simply fills it. */}
-      <div className="relative w-full" style={{ paddingBottom: `calc(125% + 80px)` }}>
+      <div ref={setEl} className="relative w-full" style={{ paddingBottom: `calc(125% + 80px)` }}>
         {mounted ? (
           <iframe
             src={embedUrl(url)}

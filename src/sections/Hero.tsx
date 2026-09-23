@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Reveal } from "../hooks";
-import { PHONE, PHONE_HREF, useI18n } from "../i18n";
+import { PHONE, PHONE_HREF, WHATSAPP_HREF, useI18n } from "../i18n";
 import {
   doctorIntrinsic,
   doctorSizes,
@@ -11,6 +11,7 @@ import {
   IconArrowRight,
   IconCheck,
   IconPhone,
+  IconWhatsApp,
 } from "../components/Icons";
 
 export function BookingForm({ requested }: { requested: string }) {
@@ -223,11 +224,20 @@ export default function Hero({ requested }: { requested: string }) {
 
             <Reveal delay={540} className="mt-8 flex flex-wrap items-center gap-4">
               <a
-                href="#book"
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-sheen group inline-flex items-center gap-2.5 rounded-full bg-pine px-7 py-4 text-[15px] font-bold text-cream shadow-lift transition-all duration-300 hover:-translate-y-1 hover:bg-teal"
               >
-                {t.hero.ctaBook}
-                <IconArrowRight className="h-4.5 w-4.5 transition-transform duration-300 group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" />
+                <IconWhatsApp className="h-5 w-5" />
+                {t.hero.ctaWhatsApp}
+              </a>
+              <a
+                href={PHONE_HREF}
+                className="group inline-flex items-center gap-2.5 rounded-full border border-ink/15 bg-cream/70 px-7 py-4 text-[15px] font-bold text-ink shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-teal/50 hover:bg-mint"
+              >
+                <IconPhone className="h-5 w-5 text-teal" />
+                {t.hero.ctaCall}
               </a>
             </Reveal>
 
@@ -266,19 +276,6 @@ export default function Hero({ requested }: { requested: string }) {
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent" aria-hidden="true" />
-            </div>
-
-            {/* floating card: next opening */}
-            <div className="glass absolute -start-3 top-8 flex items-center gap-3 rounded-2xl p-4 shadow-soft animate-floaty sm:-start-8">
-              <span className="relative flex h-3 w-3">
-                <span className="h-3 w-3 rounded-full bg-aqua animate-pulse-dot" />
-              </span>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/55">
-                  {t.hero.nextLabel}
-                </p>
-                <p className="text-sm font-extrabold text-ink">{t.hero.nextValue}</p>
-              </div>
             </div>
 
             {/* rotating badge */}
