@@ -13,33 +13,32 @@
     <meta property="og:url" content="https://www.facebook.com/dr.mohammed.elnaggar" />
     <meta name="theme-color" content="#f7f3eb" />
     <title>دكتور محمد النجار | عيادة أسنان في منيا القمح</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!--
-      Fonts are loaded *without* blocking the first paint.
+      Language is resolved *before* the first paint.
 
-      Two changes from the original markup:
-      1. Only the weights actually used are requested. The previous URL pulled
-         eight italic/upright Fraunces cuts and a full Alexandria axis; Fraunces
-         now ships just two variable ranges (upright + italic) and every family
-         is capped at the 400–800 weights the design uses.
-      2. The stylesheet is preloaded and only promoted to `rel="stylesheet"`
-         once it has arrived, so the Google Fonts round-trip can never delay
-         FCP/LCP. `display=swap` keeps text readable in the fallback stack until
-         the webfonts land.
+      The document ships as Arabic (the default), and this inline script is the
+      only thing that can correct it for a returning English visitor: it runs
+      while the parser is still in <head>, so `lang`/`dir` are already right by
+      the time the static hero below is painted. `I18nProvider` reads the same
+      attribute back on its first render, which is what keeps the hydrated tree
+      identical to the static one.
     -->
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=Tajawal:wght@400;500;700;800&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=Tajawal:wght@400;500;700;800&display=swap"
-      />
-    </noscript>
+    <script>
+      (function () {
+        // Marks the document as JS-capable. `.reveal` only hides its content
+        // under `.js`, so the static hero stays visible if this never runs.
+        document.documentElement.classList.add("js");
+        try {
+          var saved = localStorage.getItem("md-lang");
+          if (saved === "en") {
+            document.documentElement.lang = "en";
+            document.documentElement.dir = "ltr";
+          }
+        } catch (e) {
+          /* private mode / storage disabled — Arabic default stands */
+        }
+      })();
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230f4b44'/%3E%3Cpath d='M8 5.5C5.9 5.5 4.4 7.3 4.4 9.5c0 3.3 1.5 4.5 1.9 7.4.2 1.7.6 2.6 1.6 2.6 1.3 0 1-2.4 1.7-4.2.4-1.1.9-1.6 2.4-1.6s2 .5 2.4 1.6c.7 1.8.4 4.2 1.7 4.2 1 0 1.4-.9 1.6-2.6.4-2.9 1.9-4.1 1.9-7.4 0-2.2-1.5-4-3.6-4-1.4 0-2.1.8-3.6.8s-2.2-.8-3.4-.8Z' fill='%23f7f3eb'/%3E%3C/svg%3E"
@@ -57,6 +56,20 @@
     -->
   </head>
   <body>
+    <!--
+      Pre-rendered hero.
+
+      scripts/prerender.mjs renders the app with react-dom/server after
+      vite build and injects the first screen here, so the document paints
+      before any JavaScript runs. React then hydrates this markup instead of
+      rebuilding it (hydrateRoot in src/main.tsx).
+
+      The markup is generated, never hand-written: it has to match React's output
+      byte for byte, including the whitespace text nodes JSX emits between
+      siblings, and generating it is the only way to guarantee that.
+
+      In npm run dev this stays empty and React renders the page itself.
+    -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

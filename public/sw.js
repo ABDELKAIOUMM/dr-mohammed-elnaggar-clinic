@@ -21,7 +21,7 @@
  * Bump VERSION to invalidate everything after a policy change.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `clinic-static-${VERSION}`;
 
 /** The app shell; resolved relative to this worker's scope, so it tracks `base`. */
@@ -49,6 +49,26 @@ self.addEventListener("install", (event) => {
         // `cache: "reload"` bypasses the HTTP cache, so a new worker never seeds
         // itself with the previous deploy's HTML.
         await cache.add(new Request(SHELL, { cache: "reload" }));
+
+        // Warm the entry bundle and the hero images from the document we just
+        // cached. Their filenames are content-hashed, so they can never go
+        // stale, and pulling them in now means the *next* visit paints from
+        // disk instead of waiting on GitHub Pages' 10-minute HTTP cache.
+        //
+        // Best-effort: a failure here must not fail the install, because the
+        // fetch handler still fills the cache on demand.
+        const html = await (await cache.match(SHELL))?.text();
+        if (html) {
+          const urls = new Set();
+          for (const match of html.matchAll(/(?:src|href)="([^"]*\/assets\/[^"]+)"/g)) {
+            urls.add(new URL(match[1], self.registration.scope).href);
+          }
+          await Promise.all(
+            [...urls].map((url) =>
+              cache.add(new Request(url, { cache: "reload" })).catch(() => {}),
+            ),
+          );
+        }
       } catch {
         // A failed pre-cache must not fail the install: the fetch handler can
         // still fill the cache on demand.

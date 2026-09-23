@@ -966,13 +966,22 @@ type I18nValue = { lang: Lang; setLang: (l: Lang) => void; t: Content };
 const Ctx = createContext<I18nValue>(null!);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  /*
+   * The initial language is read from `<html lang>`, not from `localStorage`.
+   *
+   * The document ships a static Arabic hero and is hydrated, so the first client
+   * render has to produce exactly the markup that is already on the page. The
+   * inline script in `index.html` has already resolved the stored preference into
+   * `lang`/`dir` before paint, which makes that attribute the single source of
+   * truth both sides agree on. Reading `localStorage` here instead would let a
+   * returning English visitor hydrate an Arabic document with an English tree —
+   * a mismatch React would resolve by discarding the static hero.
+   */
   const [lang, setLangState] = useState<Lang>(() => {
-    try {
-      const saved = localStorage.getItem("md-lang");
-      return saved === "en" ? "en" : "ar";
-    } catch {
-      return "ar";
+    if (typeof document !== "undefined" && document.documentElement.lang === "en") {
+      return "en";
     }
+    return "ar";
   });
 
   const setLang = (l: Lang) => {

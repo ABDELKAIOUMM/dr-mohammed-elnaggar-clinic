@@ -108,7 +108,18 @@ body {
    out of the first paint, and the transition delay is added straight onto the
    LCP timestamp. The hero headline and paragraph render plain for that reason —
    see the comment in `sections/Hero.tsx`. */
-.reveal {
+/*
+ * Gated on `.js`.
+ *
+ * The hero's CTA row and check-list are part of the static shell, so they exist
+ * in the document before React runs. Without the gate they would ship as
+ * `opacity: 0` and stay invisible until hydration — the exact "content that
+ * needs JS to be seen" failure the static shell exists to remove. The inline
+ * script in `index.html` adds `.js` to `<html>` while the parser is still in
+ * `<head>`, so a JS-enabled browser gets the animation and a JS-disabled one
+ * gets plain, visible content.
+ */
+.js .reveal {
   opacity: 0;
   transform: translateY(26px);
   transition:
@@ -121,7 +132,7 @@ body {
      recalculation on a mid-range phone. Browsers promote an element on their
      own once its transition actually starts, so the hint only cost memory. */
 }
-.reveal.is-visible {
+.js .reveal.is-visible {
   opacity: 1;
   transform: none;
 }
