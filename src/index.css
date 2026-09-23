@@ -247,6 +247,53 @@ body {
 [dir="rtl"] em {
   font-style: normal;
 }
+
+/*
+ * Arabic needs more vertical room than Latin.
+ *
+ * Every heading in the design carries a Latin-tuned `leading-[1.06]` /
+ * `leading-[1.08]`. Those ratios are safe for Fraunces/Manrope, whose ascenders
+ * and descenders are shallow, but Arabic glyphs sit far taller: the script has
+ * deep descenders (ج ح خ ر و ي), tall ascenders (ا ل ط), and dots that hang both
+ * above and below the baseline. At 1.06 the line box is *shorter than the glyphs
+ * it contains*, so a wrapped line — or an inline `<em>` that wraps inside a
+ * heading — spills out of its own line box and collides with the line above.
+ *
+ * That is exactly what happened in the hero: `line-height` was 45.8px while the
+ * wrapped `<em>` measured 98.8px, so it overlapped the first line by 4px.
+ *
+ * `1.25` is the smallest ratio that clears the tallest Arabic stack we ship
+ * (Alexandria / Tajawal) without visibly loosening the Latin layout, and it is
+ * applied only under `[dir="rtl"]`, so the English page keeps its tight leading.
+ *
+ * `!important` is required: the values being overridden are Tailwind arbitrary
+ * utilities (`leading-[1.06]`), which are single-class selectors and would
+ * otherwise win on specificity.
+ */
+[dir="rtl"] :is(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.25 !important;
+}
+
+/*
+ * The hero headline is the one place where the wrapped `<em>` is a deliberate
+ * design element rather than an accident, so it gets a little more room still.
+ * `1.3` keeps the two lines visually grouped while guaranteeing the descenders
+ * of the first line clear the ascenders of the second.
+ */
+[dir="rtl"] h1 {
+  line-height: 1.3 !important;
+}
+
+/*
+ * An inline `<em>` that wraps inside a heading inherits the heading's
+ * `line-height`, but its own box is measured across *both* of its lines. Giving
+ * it an explicit line-height keeps the two wrapped lines evenly spaced instead
+ * of letting the second one ride up into the first.
+ */
+[dir="rtl"] :is(h1, h2, h3, h4, h5, h6) em {
+  line-height: inherit;
+}
+
 [dir="rtl"] .underline-draw {
   background-position: 100% 100%;
 }
