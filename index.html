@@ -13,6 +13,36 @@
     <meta property="og:url" content="https://www.facebook.com/dr.mohammed.elnaggar" />
     <meta name="theme-color" content="#f7f3eb" />
     <title>دكتور محمد النجار | عيادة أسنان في منيا القمح</title>
+
+    <!--
+      Fonts are loaded *without* blocking the first paint.
+
+      Two changes from the original markup:
+
+      1. Only the weights actually used are requested. The previous URL pulled
+         eight italic/upright Fraunces cuts and a full Alexandria axis; Fraunces
+         now ships just two variable ranges (upright + italic) and every family
+         is capped at the 400–800 weights the design uses.
+      2. The stylesheet is preloaded and only promoted to `rel="stylesheet"`
+         once it has arrived, so the Google Fonts round-trip can never delay
+         FCP/LCP. `display=swap` keeps text readable in the fallback stack until
+         the webfonts land.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=Tajawal:wght@400;500;700;800&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400..800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=Tajawal:wght@400;500;700;800&display=swap"
+      />
+    </noscript>
+
     <!--
       Language is resolved *before* the first paint.
 
